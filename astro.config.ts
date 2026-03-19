@@ -23,6 +23,10 @@ import rehypeUnwrapImages from "rehype-unwrap-images";
 import decapCmsOauth from "astro-decap-cms-oauth";
 import { astroTranslate } from "./src/integrations/astro-translate";
 
+const hasGithubOauth =
+	Boolean(process.env.OAUTH_GITHUB_CLIENT_ID) &&
+	Boolean(process.env.OAUTH_GITHUB_CLIENT_SECRET);
+const disableCmsInLocalDev = process.argv.includes("dev") && !hasGithubOauth;
 
 
 // https://astro.build/config
@@ -76,7 +80,10 @@ export default defineConfig({
             insertThemeColorMeta: false,
             insertManifestLink: false,
         },
-    }), decapCmsOauth(), astroTranslate()],
+    }), decapCmsOauth({
+        adminDisabled: disableCmsInLocalDev,
+        oauthDisabled: disableCmsInLocalDev,
+    }), astroTranslate()],
     markdown: {
         rehypePlugins: [
             [
