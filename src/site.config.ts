@@ -15,6 +15,15 @@ export const siteConfig: SiteConfig = {
 	},
 	// Used as the default description meta property and webmanifest description
 	description: "Faust",
+	// Update these values after your Fediverse server is online.
+	fediverse: {
+		accountDomain: "fft.im",
+		actorUrl: "https://social.fft.im/users/faust",
+		enabled: true,
+		instanceUrl: "https://social.fft.im",
+		profileUrl: "https://social.fft.im/@faust",
+		username: "faust",
+	},
 	// HTML lang property, found in src/layouts/Base.astro L:18 & astro.config.ts L:48
 	lang: "en",
 	// Meta property, found in src/components/BaseHead.astro L:42
@@ -22,7 +31,7 @@ export const siteConfig: SiteConfig = {
 	// Used to construct the meta title property found in src/components/BaseHead.astro L:11, and webmanifest name found in astro.config.ts L:42
 	title: "Faust",
 	// Used to generate deployment URLs
-	url: "https://blog-zeta-one-12.vercel.app",
+	url: "https://fft.im",
 };
 
 // Used to generate links in both the Header & Footer.

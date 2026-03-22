@@ -17,6 +17,8 @@ pnpm-debug.log*
 .env.*
 !.env.example
 !.env.sample
+deploy/gotosocial/.env
+deploy/gotosocial/data/
 
 # OS-specific files
 .DS_Store

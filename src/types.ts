@@ -5,10 +5,20 @@ export interface SiteConfig {
 		options: Intl.DateTimeFormatOptions;
 	};
 	description: string;
+	fediverse: FediverseConfig;
 	lang: string;
 	ogLocale: string;
 	title: string;
 	url: string;
+}
+
+export interface FediverseConfig {
+	accountDomain: string;
+	actorUrl: string;
+	enabled: boolean;
+	instanceUrl: string;
+	profileUrl: string;
+	username: string;
 }
 
 export interface PaginationLink {
@@ -82,9 +92,8 @@ export interface Summary {
 
 export type AdmonitionType = "tip" | "note" | "important" | "caution" | "warning";
 
-
 export interface SongUrlResponse {
-  data: {
-    url: string;
-  }[];
+	data: {
+		url: string;
+	}[];
 }

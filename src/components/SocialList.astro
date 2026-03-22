@@ -1,16 +1,18 @@
 ---
 import { Icon } from "astro-icon/components";
+import { siteConfig } from "@/site.config";
 
 interface SocialLink {
 	friendlyName: string;
 	isWebmention?: boolean;
 	link: string;
 	name: string;
+	rel?: string;
 	type?: "social" | "friend";
 }
 
 const socialLinks: SocialLink[] = [
-  {
+	{
 		friendlyName: "gmail",
 		link: "mailto:faust@linux.do",
 		name: "gmail",
@@ -22,6 +24,17 @@ const socialLinks: SocialLink[] = [
 		name: "mdi:github",
 		type: "social",
 	},
+	...(siteConfig.fediverse.enabled
+		? [
+				{
+					friendlyName: "Mastodon",
+					link: siteConfig.fediverse.profileUrl,
+					name: "mdi:mastodon",
+					rel: "me",
+					type: "social" as const,
+				},
+			]
+		: []),
 	{
 		friendlyName: "v2ex",
 		link: "https://www.v2ex.com/",
@@ -48,32 +61,30 @@ const socialLinks: SocialLink[] = [
 		type: "social",
 	},
 ];
-
-
-
-const { mode = "social" } = Astro.props;
 ---
 
 <div class="flex flex-wrap items-center gap-x-2">
 	<ul class="flex flex-1 items-center gap-x-2 sm:flex-initial">
-		{socialLinks.map(({ friendlyName, isWebmention, link, name }) => (
-			<li class="flex h-8 w-8 items-center justify-center">
-				<a
-					class="inline-block h-full w-full sm:hover:text-accent transition-colors"
-					href={link}
-					rel={`noreferrer ${isWebmention ? "me authn" : ""}`}
-					target="_blank"
-				>
-					<Icon
-						aria-hidden="true"
-						class="h-full w-full"
-						focusable="false"
-						name={name}
-						mode="inline"
-					/>
-					<span class="sr-only">{friendlyName}</span>
-				</a>
-			</li>
-		))}
+		{
+			socialLinks.map(({ friendlyName, isWebmention, link, name, rel }) => (
+				<li class="flex h-8 w-8 items-center justify-center">
+					<a
+						class="inline-block h-full w-full transition-colors sm:hover:text-accent"
+						href={link}
+						rel={[rel, "noreferrer", isWebmention ? "me authn" : ""].filter(Boolean).join(" ")}
+						target="_blank"
+					>
+						<Icon
+							aria-hidden="true"
+							class="h-full w-full"
+							focusable="false"
+							name={name}
+							mode="inline"
+						/>
+						<span class="sr-only">{friendlyName}</span>
+					</a>
+				</li>
+			))
+		}
 	</ul>
 </div>

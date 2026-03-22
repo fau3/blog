@@ -1,5 +1,6 @@
 ---
 import { siteConfig } from "@/site.config";
+import { fediverseHandle } from "@/utils/fediverse";
 import { getLocaleFromPath, getMenuLinks } from "@/utils/i18n";
 
 const year = new Date().getFullYear();
@@ -8,13 +9,31 @@ const currentLocale = getLocaleFromPath(currentPath);
 const menuLinks = getMenuLinks(currentLocale);
 ---
 
-<footer class="mt-auto w-full pt-12 pb-4">
+<footer class="mt-auto w-full pb-4 pt-12">
 	<!-- Ornate divider above footer -->
 	<div class="ornate-divider-full mb-8" aria-hidden="true"></div>
 
-	<div class="flex w-full flex-col items-center justify-center gap-y-3 text-center sm:flex-row sm:justify-between">
+	<div
+		class="flex w-full flex-col items-center justify-center gap-y-3 text-center sm:flex-row sm:justify-between"
+	>
 		<div class="font-body text-sm text-mutedFg">
-			&copy; {siteConfig.author} {year}
+			&copy; {siteConfig.author}
+			{year}
+			{
+				siteConfig.fediverse.enabled && (
+					<>
+						{" · "}
+						<a
+							class="transition-colors hover:text-accent"
+							href={siteConfig.fediverse.profileUrl}
+							rel="me noreferrer"
+							target="_blank"
+						>
+							{fediverseHandle}
+						</a>
+					</>
+				)
+			}
 		</div>
 		<nav
 			aria-label="More on this site"
@@ -23,7 +42,7 @@ const menuLinks = getMenuLinks(currentLocale);
 			{
 				menuLinks.map((link) => (
 					<a
-						class="px-3 py-2 font-display text-xs uppercase tracking-[0.2em] text-mutedFg transition-all duration-300 hover:text-accent hover:tracking-[0.25em] sm:py-0"
+						class="px-3 py-2 font-display text-xs uppercase tracking-[0.2em] text-mutedFg transition-all duration-300 hover:tracking-[0.25em] hover:text-accent sm:py-0"
 						href={link.path}
 					>
 						{link.title}
