@@ -24,6 +24,42 @@ const {
 		<slot name="head" />
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
 		<script is:inline src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+		<script is:inline>
+			const NativeAPlayer = window.APlayer;
+
+			const isLyricUrl = (value) => {
+				if (typeof value !== "string") return false;
+
+				const lyric = value.trim();
+				if (!lyric) return false;
+
+				return /^(https?:)?\/\//.test(lyric) || lyric.startsWith("/") || lyric.startsWith("./") || lyric.startsWith("../");
+			};
+
+			if (typeof NativeAPlayer === "function") {
+				function PatchedAPlayer(options = {}) {
+					const audio = Array.isArray(options.audio) ? options.audio : [];
+					const hasInlineLyrics = audio.some((track) => {
+						const lyric = typeof track?.lrc === "string" ? track.lrc.trim() : "";
+						return lyric && !isLyricUrl(lyric);
+					});
+
+					const nextOptions =
+						options.lrcType === 3 && hasInlineLyrics
+							? { ...options, lrcType: 1 }
+							: options;
+
+					return new NativeAPlayer(nextOptions);
+				}
+
+				PatchedAPlayer.prototype = NativeAPlayer.prototype;
+				Object.setPrototypeOf(PatchedAPlayer, NativeAPlayer);
+				window.APlayer = PatchedAPlayer;
+			}
+		</script>
+		<script is:inline>
+			window.meting_api = "/api/meting?server=:server&type=:type&id=:id&r=:r";
+		</script>
 		<script is:inline src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
 		<style is:global>
 			:root[data-theme="dark"] .aplayer {
