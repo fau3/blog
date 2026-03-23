@@ -9,7 +9,7 @@ tags:
 
 > This article is machine-translated.
 
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=666 height=86 src="//music.163.com/outchain/player?type=2&id=22693858&auto=0&height=66"></iframe>
+<meting-js server="netease" type="song" id="22693858" theme="#e9d785" autoplay="false" preload="none"></meting-js>
 
 ## Discovered
  While using the VSCode terminal, I found that it doesn't show the icon that should be there, it's a question mark box!
@@ -40,4 +40,3 @@ ctrl+s to save, you will see that the terminal has displayed the icon normally!
 鹰
 
 ![Image_227565357857100.jpg](https://roim-picx-9nr.pages.dev/rest/HdUSkvK.jpeg)
-

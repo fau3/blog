@@ -4,7 +4,7 @@ description: "This post showcases using the markdown admonition feature in Astro
 publishDate: "12 Jul 2025"
 tags: ["vscode"]
 ---
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=666 height=86 src="//music.163.com/outchain/player?type=2&id=22693858&auto=0&height=66"></iframe>
+<meting-js server="netease" type="song" id="22693858" theme="#e9d785" autoplay="false" preload="none"></meting-js>
 
 ## 发现
  在使用VSCode终端的时候发现显示不出来该有的图标，是一个问号方框！
@@ -35,4 +35,3 @@ ctrl+s保存，就会发现终端已经正常显示图标了！
 鹰
 
 ![Image_227565357857100.jpg](https://roim-picx-9nr.pages.dev/rest/HdUSkvK.jpeg)
-
