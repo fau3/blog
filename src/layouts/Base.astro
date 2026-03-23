@@ -21,6 +21,108 @@ const {
 	<head>
 		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
 		<ClientRouter />
+		<slot name="head" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+		<script is:inline src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+		<script is:inline src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+		<style is:global>
+			:root[data-theme="dark"] .aplayer {
+				background: hsl(var(--theme-muted));
+				border: 1px solid hsl(var(--theme-border));
+				box-shadow: 0 12px 30px rgb(0 0 0 / 0.28);
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info {
+				border-bottom-color: hsl(var(--theme-border));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap {
+				padding-block: 0.25rem;
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar,
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap .aplayer-volume-bar-wrap {
+				background: hsl(var(--theme-border));
+				box-shadow: none;
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+				background: hsl(var(--theme-text) / 0.18);
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played,
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap .aplayer-volume-bar-wrap .aplayer-volume-bar {
+				background: hsl(var(--theme-accent));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-thumb {
+				background: hsl(var(--theme-accent));
+				box-shadow: 0 0 0 2px hsl(var(--theme-bg));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-music .aplayer-title {
+				color: hsl(var(--theme-text));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-music .aplayer-author,
+			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-time,
+			:root[data-theme="dark"] .aplayer .aplayer-list ol li {
+				color: hsl(var(--theme-text) / 0.72);
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-icon path {
+				fill: hsl(var(--theme-text));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-icon:hover path {
+				fill: hsl(var(--theme-accent));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-list {
+				background: hsl(var(--theme-muted));
+				overflow-y: auto;
+				overscroll-behavior: contain;
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-list ol li {
+				border-top-color: hsl(var(--theme-border));
+			}
+
+			:root[data-theme="dark"] .aplayer .aplayer-list ol li:hover,
+			:root[data-theme="dark"] .aplayer .aplayer-list ol li.aplayer-list-light {
+				background: hsl(var(--theme-bg) / 0.9);
+				color: hsl(var(--theme-text));
+			}
+
+			/* Hide the lyric panel to avoid the extra gradient strip in article embeds. */
+			.aplayer .aplayer-lrc,
+			.aplayer .aplayer-lrc:before,
+			.aplayer .aplayer-lrc:after {
+				display: none !important;
+			}
+
+			.aplayer.aplayer-withlrc .aplayer-pic {
+				height: 66px !important;
+				width: 66px !important;
+			}
+
+			.aplayer.aplayer-withlrc .aplayer-info {
+				margin-left: 66px !important;
+				height: 66px !important;
+				padding: 14px 7px 0 10px !important;
+			}
+
+			/* Show only the first 5 tracks in album embeds. */
+			.aplayer .aplayer-list,
+			.aplayer .aplayer-list ol {
+				max-height: 160px !important;
+				overflow: hidden !important;
+			}
+
+			.aplayer .aplayer-list ol li:nth-child(n + 6) {
+				display: none !important;
+			}
+		</style>
 	</head>
 	<body
 		class="mx-auto flex min-h-screen max-w-5xl flex-col bg-bgColor px-4 pt-20 pb-8 font-body text-lg font-normal text-textColor antialiased sm:px-12 leading-relaxed selection:bg-accent/30 selection:text-accent"
@@ -39,5 +141,48 @@ const {
 			<slot />
 		</main>
 		<Footer />
+		<script is:inline>
+			function bindAlbumTitle(player) {
+				if (!(player instanceof HTMLElement) || player.dataset.albumTitleBound === "true") return;
+
+				const albumTitle =
+					player.dataset.albumTitle?.trim() ||
+					(() => {
+						let current = player.previousElementSibling;
+						while (current) {
+							if (/^H[1-6]$/.test(current.tagName)) return current.textContent?.trim() || "";
+							current = current.previousElementSibling;
+						}
+						return "";
+					})();
+
+				if (!albumTitle) return;
+
+				player.dataset.albumTitleBound = "true";
+
+				const applyAlbumTitle = () => {
+					const title = player.querySelector(".aplayer-title");
+					if (title && title.textContent !== albumTitle) {
+						title.textContent = albumTitle;
+					}
+				};
+
+				const observer = new MutationObserver(applyAlbumTitle);
+				observer.observe(player, {
+					childList: true,
+					characterData: true,
+					subtree: true,
+				});
+
+				applyAlbumTitle();
+			}
+
+			function initAlbumTitles() {
+				document.querySelectorAll("meting-js[type='album']").forEach(bindAlbumTitle);
+			}
+
+			document.addEventListener("astro:page-load", initAlbumTitles);
+			initAlbumTitles();
+		</script>
 	</body>
 </html>
