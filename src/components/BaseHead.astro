@@ -29,6 +29,38 @@ const socialImageURL = new URL(ogImage ? ogImage : "/arch.jpg", Astro.url).href;
 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 <title>{siteTitle}</title>
 
+{/* Restore WenKai, but only keep the regular/bold variants instead of the full bundle. */}
+<link
+	data-astro-transition-persist="wenkai-preconnect"
+	rel="preconnect"
+	href="https://cdn.jsdelivr.net"
+	crossorigin
+/>
+<link
+	data-astro-transition-persist="wenkai-regular"
+	rel="preload"
+	href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"
+	as="style"
+	onload="this.onload=null;this.rel='stylesheet'"
+/>
+<link
+	data-astro-transition-persist="wenkai-bold"
+	rel="preload"
+	href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css"
+	as="style"
+	onload="this.onload=null;this.rel='stylesheet'"
+/>
+<noscript>
+	<link
+		rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css"
+	/>
+	<link
+		rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-bold.css"
+	/>
+</noscript>
+
 {/* Icons */}
 <link rel="icon" href="/arch.jpg" type="image/png" />
 {

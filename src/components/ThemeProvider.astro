@@ -1,47 +1,55 @@
 {/* Inlined to avoid FOUC. This is a parser blocking script. */}
 <script is:inline>
 	const lightModePref = window.matchMedia("(prefers-color-scheme: light)");
+	const themeMetaByMode = {
+		dark: "hsl(220 16% 12%)",
+		light: "hsl(40 33% 96%)",
+	};
 
 	function getUserPref() {
 		const storedTheme = typeof localStorage !== "undefined" && localStorage.getItem("theme");
 		return storedTheme || (lightModePref.matches ? "light" : "dark");
 	}
 
-	function setTheme(newTheme) {
+	function applyThemeToDocument(targetDocument, newTheme, persist = false) {
 		if (newTheme !== "light" && newTheme !== "dark") {
 			return console.warn(
 				`Invalid theme value '${newTheme}' received. Expected 'light' or 'dark'.`,
 			);
 		}
 
-		const root = document.documentElement;
-
-		// root already set to newTheme, exit early
-		if (newTheme === root.getAttribute("data-theme")) {
-			return;
-		}
+		const root = targetDocument.documentElement;
 
 		root.setAttribute("data-theme", newTheme);
 
-		const colorThemeMetaTag = document.querySelector("meta[name='theme-color']");
-		const bgColour = getComputedStyle(document.body).getPropertyValue("--theme-bg");
-		colorThemeMetaTag.setAttribute("content", `hsl(${bgColour})`);
-		if (typeof localStorage !== "undefined") {
+		const colorThemeMetaTag = targetDocument.querySelector("meta[name='theme-color']");
+		colorThemeMetaTag?.setAttribute("content", themeMetaByMode[newTheme]);
+
+		if (persist && typeof localStorage !== "undefined") {
 			localStorage.setItem("theme", newTheme);
 		}
 	}
 
 	// initial setup
-	setTheme(getUserPref());
+	applyThemeToDocument(document, getUserPref());
+
+	// Apply the current theme to the incoming document before Astro swaps DOM trees.
+	document.addEventListener("astro:before-swap", (event) => {
+		applyThemeToDocument(event.newDocument, getUserPref());
+	});
 
 	// View Transitions hook to restore theme
-	document.addEventListener("astro:after-swap", () => setTheme(getUserPref()));
+	document.addEventListener("astro:after-swap", () =>
+		applyThemeToDocument(document, getUserPref()),
+	);
 
 	// listen for theme-change custom event, fired in src/components/ThemeToggle.astro
 	document.addEventListener("theme-change", (e) => {
-		setTheme(e.detail.theme);
+		applyThemeToDocument(document, e.detail.theme, true);
 	});
 
 	// listen for prefers-color-scheme change.
-	lightModePref.addEventListener("change", (e) => setTheme(e.matches ? "light" : "dark"));
+	lightModePref.addEventListener("change", (e) => {
+		applyThemeToDocument(document, e.matches ? "light" : "dark", true);
+	});
 </script>

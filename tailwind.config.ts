@@ -60,10 +60,15 @@ export default {
 				brass: "var(--academia-brass)",
 			},
 			fontFamily: {
-				heading: ['"Cormorant Garamond"', ...cjkSerifFallback, ...fontFamily.serif],
-				body: ['"Crimson Pro"', ...cjkSerifFallback, ...fontFamily.serif],
-				display: ['"Cinzel"', ...cjkSerifFallback, ...fontFamily.serif],
-				serif: ['"Crimson Pro"', ...cjkSerifFallback, ...fontFamily.serif],
+				heading: [
+					'"Cormorant Garamond"',
+					'"LXGW WenKai"',
+					...cjkSerifFallback,
+					...fontFamily.serif,
+				],
+				body: ['"Crimson Pro"', '"LXGW WenKai"', ...cjkSerifFallback, ...fontFamily.serif],
+				display: ['"Cinzel"', '"LXGW WenKai"', ...cjkSerifFallback, ...fontFamily.serif],
+				serif: ['"Crimson Pro"', '"LXGW WenKai"', ...cjkSerifFallback, ...fontFamily.serif],
 				mono: ['"IBM Plex Mono"', ...fontFamily.mono],
 			},
 			transitionProperty: {

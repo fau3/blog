@@ -17,6 +17,7 @@ const { ogImage, title, updatedDate, publishDate } = post.data;
 const socialImage = ogImage ?? `/og-image/${post.id}.png`;
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString();
 const { headings } = await render(post);
+const hasMeting = post.body?.includes("<meting-js") ?? false;
 const description = getEntryDescription({
 	body: post.body ?? "",
 	description: post.data.description,
@@ -31,6 +32,7 @@ const description = getEntryDescription({
 		ogImage: socialImage,
 		title,
 	}}
+	hasMeting={hasMeting}
 >
 	<div class="gap-x-10 lg:flex lg:items-start">
 		{!!headings.length && <TOC headings={headings} />}

@@ -9,10 +9,12 @@ import { siteConfig } from "@/site.config";
 import type { SiteMeta } from "@/types";
 
 interface Props {
+	hasMeting?: boolean;
 	meta: SiteMeta;
 }
 
 const {
+	hasMeting = false,
 	meta: { articleDate, description = siteConfig.description, ogImage, title },
 } = Astro.props;
 ---
@@ -22,38 +24,15 @@ const {
 		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
 		<ClientRouter />
 		<slot name="head" />
+		{
+			hasMeting && (
+				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" />
+			)
+		}
 		<script is:inline>
 			(() => {
-				const APPLAYER_CSS_ID = "aplayer-style";
 				const APPLAYER_SCRIPT_ID = "aplayer-script";
 				const METING_SCRIPT_ID = "meting-script";
-
-				const loadStyleOnce = (id, href) =>
-					new Promise((resolve, reject) => {
-						const existing = document.getElementById(id);
-						if (existing) {
-							if (existing.dataset.loaded === "true") return resolve(existing);
-							existing.addEventListener("load", () => resolve(existing), { once: true });
-							existing.addEventListener("error", reject, { once: true });
-							return;
-						}
-
-						const link = document.createElement("link");
-						link.id = id;
-						link.rel = "stylesheet";
-						link.href = href;
-						link.crossOrigin = "anonymous";
-						link.addEventListener(
-							"load",
-							() => {
-								link.dataset.loaded = "true";
-								resolve(link);
-							},
-							{ once: true },
-						);
-						link.addEventListener("error", reject, { once: true });
-						document.head.appendChild(link);
-					});
 
 				const loadScriptOnce = (id, src) =>
 					new Promise((resolve, reject) => {
@@ -125,16 +104,10 @@ const {
 					if (window.__fftMetingAssetsPromise) return window.__fftMetingAssetsPromise;
 
 					window.meting_api = "/api/meting?server=:server&type=:type&id=:id&r=:r";
-					window.__fftMetingAssetsPromise = loadStyleOnce(
-						APPLAYER_CSS_ID,
-						"https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css",
+					window.__fftMetingAssetsPromise = loadScriptOnce(
+						APPLAYER_SCRIPT_ID,
+						"https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js",
 					)
-						.then(() =>
-							loadScriptOnce(
-								APPLAYER_SCRIPT_ID,
-								"https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js",
-							),
-						)
 						.then(() => {
 							patchAPlayer();
 							return loadScriptOnce(
