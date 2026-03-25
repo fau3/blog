@@ -1,16 +1,16 @@
 ---
 // Heavy inspiration taken from Astro Starlight -> https://github.com/withastro/starlight/blob/main/packages/starlight/components/Search.astro
 
-import "@pagefind/default-ui/css/ui.css";
 export const prerender = true;
 ---
 
-<site-search class="relative ms-auto" id="search">
-	<button
-		class="search-icon-btn"
-		data-open-modal
-		disabled
-	>
+<site-search
+	class="relative ms-auto"
+	id="search"
+	data-base-url={import.meta.env.BASE_URL}
+	data-pagefind-enabled={import.meta.env.DEV ? "false" : "true"}
+>
+	<button class="search-icon-btn" data-open-modal disabled>
 		<svg
 			aria-label="search"
 			class="search-icon"
@@ -33,7 +33,7 @@ export const prerender = true;
 	>
 		<div class="dialog-frame flex flex-col gap-4 p-6 pt-12 sm:pt-6">
 			<button
-				class="ms-auto cursor-pointer rounded bg-bgAlt px-4 py-2 font-display text-xs uppercase tracking-[0.15em] text-accent border border-border hover:border-accent transition-colors"
+				class="ms-auto cursor-pointer rounded border border-border bg-bgAlt px-4 py-2 font-display text-xs uppercase tracking-[0.15em] text-accent transition-colors hover:border-accent"
 				data-close-modal>Close</button
 			>
 			{
@@ -54,84 +54,181 @@ export const prerender = true;
 	</dialog>
 </site-search>
 
-<script>
-	class SiteSearch extends HTMLElement {
-		private closeBtn: HTMLButtonElement;
-		private dialog: HTMLDialogElement;
-		private dialogFrame: HTMLDivElement;
-		private openBtn: HTMLButtonElement;
+<script is:inline>
+	(() => {
+		const PAGEFIND_SCRIPT_ID = "pagefind-ui-script";
+		const PAGEFIND_STYLE_ID = "pagefind-ui-style";
 
-		closeModal = () => {
-			if (this.dialog.open) {
-				this.dialog.close();
-				window.removeEventListener("click", this.onWindowClick);
+		const loadScriptOnce = (id, src) =>
+			new Promise((resolve, reject) => {
+				const existing = document.getElementById(id);
+				if (existing) {
+					if (existing.dataset.loaded === "true") return resolve(existing);
+					existing.addEventListener("load", () => resolve(existing), { once: true });
+					existing.addEventListener("error", reject, { once: true });
+					return;
+				}
+
+				const script = document.createElement("script");
+				script.id = id;
+				script.src = src;
+				script.async = true;
+				script.addEventListener(
+					"load",
+					() => {
+						script.dataset.loaded = "true";
+						resolve(script);
+					},
+					{ once: true },
+				);
+				script.addEventListener("error", reject, { once: true });
+				document.head.appendChild(script);
+			});
+
+		const loadStyleOnce = (id, href) =>
+			new Promise((resolve, reject) => {
+				const existing = document.getElementById(id);
+				if (existing) {
+					if (existing.dataset.loaded === "true") return resolve(existing);
+					existing.addEventListener("load", () => resolve(existing), { once: true });
+					existing.addEventListener("error", reject, { once: true });
+					return;
+				}
+
+				const link = document.createElement("link");
+				link.id = id;
+				link.rel = "stylesheet";
+				link.href = href;
+				link.addEventListener(
+					"load",
+					() => {
+						link.dataset.loaded = "true";
+						resolve(link);
+					},
+					{ once: true },
+				);
+				link.addEventListener("error", reject, { once: true });
+				document.head.appendChild(link);
+			});
+
+		class SiteSearch extends HTMLElement {
+			closeModal = () => {
+				if (this.dialog.open) {
+					this.dialog.close();
+					window.removeEventListener("click", this.onWindowClick);
+				}
+			};
+
+			onWindowClick = (event) => {
+				// check if it's a link
+				const isLink = "href" in (event.target || {});
+				// make sure the click is either a link or outside of the dialog
+				if (
+					isLink ||
+					(document.body.contains(event.target) && !this.dialogFrame.contains(event.target))
+				)
+					this.closeModal();
+			};
+
+			onWindowKeydown = (e) => {
+				// check if it's the / key
+				if (e.key === "/" && !this.dialog.open) {
+					this.openModal();
+					e.preventDefault();
+				}
+			};
+
+			openModal = (event) => {
+				this.dialog.showModal();
+				event?.stopPropagation();
+				window.addEventListener("click", this.onWindowClick);
+				this.ensurePagefind()
+					.catch((error) => {
+						console.error("Failed to initialize Pagefind UI", error);
+						if (this.searchRoot && this.searchRoot.dataset.errorShown !== "true") {
+							this.searchRoot.dataset.errorShown = "true";
+							this.searchRoot.innerHTML =
+								'<p class="text-sm text-mutedFg">Search failed to load. Please try refreshing the page.</p>';
+						}
+					})
+					.finally(() => this.querySelector("input")?.focus());
+			};
+
+			constructor() {
+				super();
+				this.openBtn = this.querySelector("button[data-open-modal]");
+				this.closeBtn = this.querySelector("button[data-close-modal]");
+				this.dialog = this.querySelector("dialog");
+				this.dialogFrame = this.querySelector(".dialog-frame");
+				this.searchRoot = this.querySelector("#cactus__search");
+
+				this.openBtn?.addEventListener("click", this.openModal);
+				if (this.openBtn) this.openBtn.disabled = false;
+				this.closeBtn?.addEventListener("click", this.closeModal);
 			}
-		};
 
-		onWindowClick = (event: MouseEvent) => {
-			// check if it's a link
-			const isLink = "href" in (event.target || {});
-			// make sure the click is either a link or outside of the dialog
-			if (
-				isLink ||
-				(document.body.contains(event.target as Node) &&
-					!this.dialogFrame.contains(event.target as Node))
-			)
-				this.closeModal();
-		};
+			async ensurePagefind() {
+				if (this.dataset.pagefindEnabled !== "true") return;
+				if (this.dataset.pagefindInitialized === "true") return;
 
-		onWindowKeydown = (e: KeyboardEvent) => {
-			// check if it's the / key
-			if (e.key === "/" && !this.dialog.open) {
-				this.openModal();
-				e.preventDefault();
-			}
-		};
+				if (this.searchRoot && this.searchRoot.dataset.loadingShown !== "true") {
+					this.searchRoot.dataset.loadingShown = "true";
+					this.searchRoot.innerHTML = '<p class="text-sm text-mutedFg">Loading search…</p>';
+				}
 
-		openModal = (event?: MouseEvent) => {
-			this.dialog.showModal();
-			this.querySelector("input")?.focus();
-			event?.stopPropagation();
-			window.addEventListener("click", this.onWindowClick);
-		};
+				if (!window.__fftPagefindAssetsPromise) {
+					const baseUrl = this.dataset.baseUrl || "/";
+					const assetBase = new URL(baseUrl, window.location.origin);
+					const cssHref = new URL("pagefind/pagefind-ui.css", assetBase).toString();
+					const scriptSrc = new URL("pagefind/pagefind-ui.js", assetBase).toString();
 
-		constructor() {
-			super();
-			this.openBtn = this.querySelector<HTMLButtonElement>("button[data-open-modal]")!;
-			this.closeBtn = this.querySelector<HTMLButtonElement>("button[data-close-modal]")!;
-			this.dialog = this.querySelector("dialog")!;
-			this.dialogFrame = this.querySelector(".dialog-frame")!;
+					window.__fftPagefindAssetsPromise = Promise.all([
+						loadStyleOnce(PAGEFIND_STYLE_ID, cssHref),
+						loadScriptOnce(PAGEFIND_SCRIPT_ID, scriptSrc),
+					]);
+				}
 
-			this.openBtn.addEventListener("click", this.openModal);
-			this.openBtn.disabled = false;
-			this.closeBtn.addEventListener("click", this.closeModal);
-		}
+				await window.__fftPagefindAssetsPromise;
 
-		connectedCallback() {
-			// Listen for keyboard shortcut
-			window.addEventListener("keydown", this.onWindowKeydown);
+				if (this.dataset.pagefindInitialized === "true") return;
 
-			// only add pagefind in production
-			if (import.meta.env.DEV) return;
-			const onIdle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
-			onIdle(async () => {
-				const { PagefindUI } = await import("@pagefind/default-ui");
+				const PagefindUI = window.PagefindUI;
+				if (typeof PagefindUI !== "function") {
+					throw new Error("PagefindUI is unavailable after loading the search bundle.");
+				}
+
+				const baseUrl = this.dataset.baseUrl || "/";
+				const bundlePath = new URL("pagefind/", new URL(baseUrl, window.location.origin)).pathname;
+
 				new PagefindUI({
-					baseUrl: import.meta.env.BASE_URL,
-					bundlePath: import.meta.env.BASE_URL.replace(/\/$/, "") + "/pagefind/",
+					baseUrl,
+					bundlePath,
 					element: "#cactus__search",
 					showImages: false,
 					showSubResults: true,
 				});
-			});
+
+				this.dataset.pagefindInitialized = "true";
+			}
+
+			connectedCallback() {
+				if (this.dataset.keyboardBound === "true") return;
+
+				// Listen for keyboard shortcut
+				this.dataset.keyboardBound = "true";
+				window.addEventListener("keydown", this.onWindowKeydown);
+			}
+
+			disconnectedCallback() {
+				window.removeEventListener("keydown", this.onWindowKeydown);
+				delete this.dataset.keyboardBound;
+			}
 		}
 
-		disconnectedCallback() {
-			window.removeEventListener("keydown", this.onWindowKeydown);
+		if (!customElements.get("site-search")) {
+			customElements.define("site-search", SiteSearch);
 		}
-	}
-
-	customElements.define("site-search", SiteSearch);
+	})();
 </script>
 
 <style is:global>
@@ -212,7 +309,9 @@ export const prerender = true;
 		height: 2rem;
 		border-radius: 0.375rem;
 		color: var(--academia-muted-fg);
-		transition: color 200ms ease, transform 200ms ease;
+		transition:
+			color 200ms ease,
+			transform 200ms ease;
 	}
 
 	.search-icon-btn:hover {

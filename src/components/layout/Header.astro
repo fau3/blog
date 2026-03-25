@@ -27,6 +27,9 @@ const homeHref = currentLocale === "en" ? "/en/" : "/";
 					src={logoImage}
 					alt="Logo"
 					class="h-full w-full rounded"
+					width={80}
+					height={80}
+					sizes="(min-width: 640px) 64px, 40px"
 					loading="eager"
 					fetchpriority="high"
 				/>
@@ -35,7 +38,10 @@ const homeHref = currentLocale === "en" ? "/en/" : "/";
 					they're persistent.
 				</span>
 			</div>
-			<span class="font-heading text-xl font-normal tracking-tight text-accent sm:text-2xl engraved me-4">Faust</span>
+			<span
+				class="engraved me-4 font-heading text-xl font-normal tracking-tight text-accent sm:text-2xl"
+				>Faust</span
+			>
 		</a>
 		<nav
 			aria-label="Main menu"
@@ -50,7 +56,7 @@ const homeHref = currentLocale === "en" ? "/en/" : "/";
 							"px-4 py-4 font-display text-sm uppercase tracking-[0.2em] transition-all duration-300 sm:py-0",
 							Astro.url.pathname === link.path
 								? "text-accent"
-								: "text-mutedFg hover:text-accent hover:tracking-[0.25em]",
+								: "text-mutedFg hover:tracking-[0.25em] hover:text-accent",
 						]}
 						data-astro-prefetch
 						href={link.path}
@@ -104,23 +110,30 @@ const homeHref = currentLocale === "en" ? "/en/" : "/";
 	</mobile-button>
 </header>
 
-<script>
-	import { toggleClass } from "../../utils/domElement";
+<script is:inline>
+	(() => {
+		class MobileNavBtn extends HTMLElement {
+			connectedCallback() {
+				if (this.dataset.bound === "true") return;
 
-	class MobileNavBtn extends HTMLElement {
-		#menuOpen: boolean = false;
+				const headerEl = document.getElementById("main-header");
+				const mobileButtonEl = this.querySelector("button");
+				if (!headerEl || !mobileButtonEl) return;
 
-		connectedCallback() {
-			const headerEl = document.getElementById("main-header")!;
-			const mobileButtonEl = this.querySelector<HTMLButtonElement>("button");
+				this.dataset.bound = "true";
 
-			mobileButtonEl?.addEventListener("click", () => {
-				if (headerEl) toggleClass(headerEl, "menu-open");
-				this.#menuOpen = !this.#menuOpen;
-				mobileButtonEl.setAttribute("aria-expanded", this.#menuOpen.toString());
-			});
+				mobileButtonEl.addEventListener("click", () => {
+					headerEl.classList.toggle("menu-open");
+					mobileButtonEl.setAttribute(
+						"aria-expanded",
+						String(headerEl.classList.contains("menu-open")),
+					);
+				});
+			}
 		}
-	}
 
-	customElements.define("mobile-button", MobileNavBtn);
+		if (!customElements.get("mobile-button")) {
+			customElements.define("mobile-button", MobileNavBtn);
+		}
+	})();
 </script>

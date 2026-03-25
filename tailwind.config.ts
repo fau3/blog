@@ -2,6 +2,15 @@ import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
 
+const cjkSerifFallback = [
+	'"Songti SC"',
+	'"STSong"',
+	'"Noto Serif SC"',
+	'"Noto Serif CJK SC"',
+	'"Source Han Serif SC"',
+	'"PMingLiU"',
+];
+
 export default {
 	content: [
 		"./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}",
@@ -51,10 +60,10 @@ export default {
 				brass: "var(--academia-brass)",
 			},
 			fontFamily: {
-				heading: ['"Cormorant Garamond"', '"LXGW WenKai"', ...fontFamily.serif],
-				body: ['"Crimson Pro"', '"LXGW WenKai"', ...fontFamily.serif],
-				display: ['"Cinzel"', '"LXGW WenKai"', ...fontFamily.serif],
-				serif: ['"Crimson Pro"', '"LXGW WenKai"', ...fontFamily.serif],
+				heading: ['"Cormorant Garamond"', ...cjkSerifFallback, ...fontFamily.serif],
+				body: ['"Crimson Pro"', ...cjkSerifFallback, ...fontFamily.serif],
+				display: ['"Cinzel"', ...cjkSerifFallback, ...fontFamily.serif],
+				serif: ['"Crimson Pro"', ...cjkSerifFallback, ...fontFamily.serif],
 				mono: ['"IBM Plex Mono"', ...fontFamily.mono],
 			},
 			transitionProperty: {

@@ -10,19 +10,12 @@ type Props = SiteMeta;
 /* Academia Fonts */
 import "@fontsource/cormorant-garamond/400.css";
 import "@fontsource/cormorant-garamond/400-italic.css";
-import "@fontsource/cormorant-garamond/500.css";
-import "@fontsource/cormorant-garamond/600.css";
 import "@fontsource/crimson-pro/400.css";
 import "@fontsource/crimson-pro/400-italic.css";
-import "@fontsource/crimson-pro/600.css";
 import "@fontsource/cinzel/500.css";
-import "@fontsource/cinzel/600.css";
 
 /* Keep mono for code blocks */
 import "@fontsource/ibm-plex-mono/400.css";
-import "@fontsource/ibm-plex-mono/500.css";
-
-/* LXGW WenKai for Chinese — loaded via CDN */
 
 const { articleDate, description, ogImage, title } = Astro.props;
 
@@ -36,28 +29,12 @@ const socialImageURL = new URL(ogImage ? ogImage : "/arch.jpg", Astro.url).href;
 <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 <title>{siteTitle}</title>
 
-{/* LXGW WenKai Chinese Font — async load to avoid render-blocking */}
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-<link
-	rel="preload"
-	href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
-	as="style"
-	onload="this.onload=null;this.rel='stylesheet'"
-/>
-<noscript
-	><link
-		rel="stylesheet"
-		href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
-	/></noscript
->
-
 {/* Icons */}
-<link href="https://roim-picx-9nr.pages.dev/rest/a3LwEmK.png" rel="icon" type="image/avif" />
+<link rel="icon" href="/arch.jpg" type="image/png" />
 {
 	import.meta.env.PROD && (
 		<>
-			{/* Favicon & Apple Icon */}
-			<link rel="icon" href="/arch.jpg" type="image/png" />
+			{/* Apple Icon */}
 			<link href="/icons/apple-touch-icon.png" rel="apple-touch-icon" />
 			{/* Manifest */}
 			<link href="/manifest.webmanifest" rel="manifest" />

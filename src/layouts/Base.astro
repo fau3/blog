@@ -22,45 +22,175 @@ const {
 		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
 		<ClientRouter />
 		<slot name="head" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
-		<script is:inline src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
 		<script is:inline>
-			const NativeAPlayer = window.APlayer;
+			(() => {
+				const APPLAYER_CSS_ID = "aplayer-style";
+				const APPLAYER_SCRIPT_ID = "aplayer-script";
+				const METING_SCRIPT_ID = "meting-script";
 
-			const isLyricUrl = (value) => {
-				if (typeof value !== "string") return false;
+				const loadStyleOnce = (id, href) =>
+					new Promise((resolve, reject) => {
+						const existing = document.getElementById(id);
+						if (existing) {
+							if (existing.dataset.loaded === "true") return resolve(existing);
+							existing.addEventListener("load", () => resolve(existing), { once: true });
+							existing.addEventListener("error", reject, { once: true });
+							return;
+						}
 
-				const lyric = value.trim();
-				if (!lyric) return false;
-
-				return /^(https?:)?\/\//.test(lyric) || lyric.startsWith("/") || lyric.startsWith("./") || lyric.startsWith("../");
-			};
-
-			if (typeof NativeAPlayer === "function") {
-				function PatchedAPlayer(options = {}) {
-					const audio = Array.isArray(options.audio) ? options.audio : [];
-					const hasInlineLyrics = audio.some((track) => {
-						const lyric = typeof track?.lrc === "string" ? track.lrc.trim() : "";
-						return lyric && !isLyricUrl(lyric);
+						const link = document.createElement("link");
+						link.id = id;
+						link.rel = "stylesheet";
+						link.href = href;
+						link.crossOrigin = "anonymous";
+						link.addEventListener(
+							"load",
+							() => {
+								link.dataset.loaded = "true";
+								resolve(link);
+							},
+							{ once: true },
+						);
+						link.addEventListener("error", reject, { once: true });
+						document.head.appendChild(link);
 					});
 
-					const nextOptions =
-						options.lrcType === 3 && hasInlineLyrics
-							? { ...options, lrcType: 1 }
-							: options;
+				const loadScriptOnce = (id, src) =>
+					new Promise((resolve, reject) => {
+						const existing = document.getElementById(id);
+						if (existing) {
+							if (existing.dataset.loaded === "true") return resolve(existing);
+							existing.addEventListener("load", () => resolve(existing), { once: true });
+							existing.addEventListener("error", reject, { once: true });
+							return;
+						}
 
-					return new NativeAPlayer(nextOptions);
+						const script = document.createElement("script");
+						script.id = id;
+						script.src = src;
+						script.async = true;
+						script.crossOrigin = "anonymous";
+						script.addEventListener(
+							"load",
+							() => {
+								script.dataset.loaded = "true";
+								resolve(script);
+							},
+							{ once: true },
+						);
+						script.addEventListener("error", reject, { once: true });
+						document.head.appendChild(script);
+					});
+
+				const patchAPlayer = () => {
+					if (window.__fftAPlayerPatched === "true") return;
+
+					const NativeAPlayer = window.APlayer;
+					if (typeof NativeAPlayer !== "function") return;
+
+					const isLyricUrl = (value) => {
+						if (typeof value !== "string") return false;
+
+						const lyric = value.trim();
+						if (!lyric) return false;
+
+						return (
+							/^(https?:)?\/\//.test(lyric) ||
+							lyric.startsWith("/") ||
+							lyric.startsWith("./") ||
+							lyric.startsWith("../")
+						);
+					};
+
+					function PatchedAPlayer(options = {}) {
+						const audio = Array.isArray(options.audio) ? options.audio : [];
+						const hasInlineLyrics = audio.some((track) => {
+							const lyric = typeof track?.lrc === "string" ? track.lrc.trim() : "";
+							return lyric && !isLyricUrl(lyric);
+						});
+
+						const nextOptions =
+							options.lrcType === 3 && hasInlineLyrics ? { ...options, lrcType: 1 } : options;
+
+						return new NativeAPlayer(nextOptions);
+					}
+
+					PatchedAPlayer.prototype = NativeAPlayer.prototype;
+					Object.setPrototypeOf(PatchedAPlayer, NativeAPlayer);
+					window.APlayer = PatchedAPlayer;
+					window.__fftAPlayerPatched = "true";
+				};
+
+				const ensureMetingAssets = () => {
+					if (window.__fftMetingAssetsPromise) return window.__fftMetingAssetsPromise;
+
+					window.meting_api = "/api/meting?server=:server&type=:type&id=:id&r=:r";
+					window.__fftMetingAssetsPromise = loadStyleOnce(
+						APPLAYER_CSS_ID,
+						"https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css",
+					)
+						.then(() =>
+							loadScriptOnce(
+								APPLAYER_SCRIPT_ID,
+								"https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js",
+							),
+						)
+						.then(() => {
+							patchAPlayer();
+							return loadScriptOnce(
+								METING_SCRIPT_ID,
+								"https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js",
+							);
+						})
+						.then(() => {
+							document.dispatchEvent(new CustomEvent("meting:ready"));
+						});
+
+					return window.__fftMetingAssetsPromise;
+				};
+
+				const scheduleMetingLoad = () => {
+					const players = Array.from(document.querySelectorAll("meting-js"));
+					if (!players.length) return;
+
+					if (customElements.get("meting-js")) {
+						document.dispatchEvent(new CustomEvent("meting:ready"));
+						return;
+					}
+
+					if (!("IntersectionObserver" in window)) {
+						ensureMetingAssets().catch((error) => {
+							console.error("Failed to load music player assets", error);
+						});
+						return;
+					}
+
+					window.__fftMetingObserver?.disconnect?.();
+
+					const observer = new IntersectionObserver(
+						(entries) => {
+							if (entries.some((entry) => entry.isIntersecting)) {
+								observer.disconnect();
+								ensureMetingAssets().catch((error) => {
+									console.error("Failed to load music player assets", error);
+								});
+							}
+						},
+						{ rootMargin: "1200px 0px" },
+					);
+
+					players.forEach((player) => observer.observe(player));
+					window.__fftMetingObserver = observer;
+				};
+
+				scheduleMetingLoad();
+
+				if (window.__fftMetingLoadBound !== "true") {
+					window.__fftMetingLoadBound = "true";
+					document.addEventListener("astro:page-load", scheduleMetingLoad);
 				}
-
-				PatchedAPlayer.prototype = NativeAPlayer.prototype;
-				Object.setPrototypeOf(PatchedAPlayer, NativeAPlayer);
-				window.APlayer = PatchedAPlayer;
-			}
+			})();
 		</script>
-		<script is:inline>
-			window.meting_api = "/api/meting?server=:server&type=:type&id=:id&r=:r";
-		</script>
-		<script is:inline src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
 		<style is:global>
 			:root[data-theme="dark"] .aplayer {
 				background: hsl(var(--theme-muted));
@@ -76,22 +206,56 @@ const {
 				padding-block: 0.25rem;
 			}
 
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar,
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap .aplayer-volume-bar-wrap {
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-bar-wrap
+				.aplayer-bar,
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-volume-wrap
+				.aplayer-volume-bar-wrap {
 				background: hsl(var(--theme-border));
 				box-shadow: none;
 			}
 
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-bar-wrap
+				.aplayer-bar
+				.aplayer-loaded {
 				background: hsl(var(--theme-text) / 0.18);
 			}
 
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played,
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-volume-wrap .aplayer-volume-bar-wrap .aplayer-volume-bar {
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-bar-wrap
+				.aplayer-bar
+				.aplayer-played,
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-volume-wrap
+				.aplayer-volume-bar-wrap
+				.aplayer-volume-bar {
 				background: hsl(var(--theme-accent));
 			}
 
-			:root[data-theme="dark"] .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-thumb {
+			:root[data-theme="dark"]
+				.aplayer
+				.aplayer-info
+				.aplayer-controller
+				.aplayer-bar-wrap
+				.aplayer-bar
+				.aplayer-thumb {
 				background: hsl(var(--theme-accent));
 				box-shadow: 0 0 0 2px hsl(var(--theme-bg));
 			}
@@ -161,7 +325,7 @@ const {
 		</style>
 	</head>
 	<body
-		class="mx-auto flex min-h-screen max-w-5xl flex-col bg-bgColor px-4 pt-20 pb-8 font-body text-lg font-normal text-textColor antialiased sm:px-12 leading-relaxed selection:bg-accent/30 selection:text-accent"
+		class="mx-auto flex min-h-screen max-w-5xl flex-col bg-bgColor px-4 pb-8 pt-20 font-body text-lg font-normal leading-relaxed text-textColor antialiased selection:bg-accent/30 selection:text-accent sm:px-12"
 	>
 		<ThemeProvider />
 		<SkipLink />
@@ -178,47 +342,54 @@ const {
 		</main>
 		<Footer />
 		<script is:inline>
-			function bindAlbumTitle(player) {
-				if (!(player instanceof HTMLElement) || player.dataset.albumTitleBound === "true") return;
+			(() => {
+				function bindAlbumTitle(player) {
+					if (!(player instanceof HTMLElement) || player.dataset.albumTitleBound === "true") return;
 
-				const albumTitle =
-					player.dataset.albumTitle?.trim() ||
-					(() => {
-						let current = player.previousElementSibling;
-						while (current) {
-							if (/^H[1-6]$/.test(current.tagName)) return current.textContent?.trim() || "";
-							current = current.previousElementSibling;
+					const albumTitle =
+						player.dataset.albumTitle?.trim() ||
+						(() => {
+							let current = player.previousElementSibling;
+							while (current) {
+								if (/^H[1-6]$/.test(current.tagName)) return current.textContent?.trim() || "";
+								current = current.previousElementSibling;
+							}
+							return "";
+						})();
+
+					if (!albumTitle) return;
+
+					player.dataset.albumTitleBound = "true";
+
+					const applyAlbumTitle = () => {
+						const title = player.querySelector(".aplayer-title");
+						if (title && title.textContent !== albumTitle) {
+							title.textContent = albumTitle;
 						}
-						return "";
-					})();
+					};
 
-				if (!albumTitle) return;
+					const observer = new MutationObserver(applyAlbumTitle);
+					observer.observe(player, {
+						childList: true,
+						characterData: true,
+						subtree: true,
+					});
 
-				player.dataset.albumTitleBound = "true";
+					applyAlbumTitle();
+				}
 
-				const applyAlbumTitle = () => {
-					const title = player.querySelector(".aplayer-title");
-					if (title && title.textContent !== albumTitle) {
-						title.textContent = albumTitle;
-					}
-				};
+				function initAlbumTitles() {
+					document.querySelectorAll("meting-js[type='album']").forEach(bindAlbumTitle);
+				}
 
-				const observer = new MutationObserver(applyAlbumTitle);
-				observer.observe(player, {
-					childList: true,
-					characterData: true,
-					subtree: true,
-				});
+				initAlbumTitles();
 
-				applyAlbumTitle();
-			}
-
-			function initAlbumTitles() {
-				document.querySelectorAll("meting-js[type='album']").forEach(bindAlbumTitle);
-			}
-
-			document.addEventListener("astro:page-load", initAlbumTitles);
-			initAlbumTitles();
+				if (window.__fftAlbumTitleBound !== "true") {
+					window.__fftAlbumTitleBound = "true";
+					document.addEventListener("astro:page-load", initAlbumTitles);
+					document.addEventListener("meting:ready", initAlbumTitles);
+				}
+			})();
 		</script>
 	</body>
 </html>
