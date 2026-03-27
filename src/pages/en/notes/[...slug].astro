@@ -1,14 +1,13 @@
 ---
-import { getCollection } from "astro:content";
-
 import Note from "@/components/note/Note.astro";
+import { getAllNotesEn } from "@/data/note";
 import PageLayout from "@/layouts/Base.astro";
 import { getEntryDescription } from "@/utils/content-preview";
 import type { GetStaticPaths, InferGetStaticPropsType } from "astro";
 export const prerender = true;
 
 export const getStaticPaths = (async () => {
-	const allNotes = await getCollection("noteEn");
+	const allNotes = await getAllNotesEn();
 	return allNotes.map((note) => ({
 		params: { slug: note.id },
 		props: { note },

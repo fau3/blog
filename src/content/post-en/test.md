@@ -1,6 +1,7 @@
 ---
 title: Test Article
 description: This is an interesting test article
+draft: true
 publishDate: 2024-01-01
 tags:
   - test

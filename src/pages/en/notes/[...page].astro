@@ -1,7 +1,8 @@
 ---
-import { type CollectionEntry, getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
 import Pagination from "@/components/Paginator.astro";
 import Note from "@/components/note/Note.astro";
+import { getAllNotesEn } from "@/data/note";
 import PageLayout from "@/layouts/Base.astro";
 import { collectionDateSort } from "@/utils/date";
 import { t } from "@/utils/i18n";
@@ -14,7 +15,7 @@ const locale = "en";
 // 获取英文笔记
 export const getStaticPaths = (async ({ paginate }) => {
 	const MAX_NOTES_PER_PAGE = 10;
-	const allNotes = await getCollection("noteEn");
+	const allNotes = await getAllNotesEn();
 	return paginate(allNotes.sort(collectionDateSort), { pageSize: MAX_NOTES_PER_PAGE });
 }) satisfies GetStaticPaths;
 

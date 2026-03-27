@@ -1,6 +1,7 @@
 ---
 title: typical example
 description: One note
+draft: true
 publishDate: '2024-12-13 16:35'
 tags: []
 ---

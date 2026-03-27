@@ -1,6 +1,7 @@
 ---
 title: Test Note
 description: This is a test note for the English version
+draft: true
 publishDate: "2024-01-01 12:00"
 ---
 
