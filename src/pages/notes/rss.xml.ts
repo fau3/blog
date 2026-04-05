@@ -13,9 +13,9 @@ export const GET = async () => {
 		description: siteConfig.description,
 		site: import.meta.env.SITE,
 		items: sortedNotes.map((note) => ({
-			content: getEntryContentHtml(note.body, note.data.description),
+			content: getEntryContentHtml(note.body ?? "", note.data.description),
 			description: getEntryDescription({
-				body: note.body,
+				body: note.body ?? "",
 				description: note.data.description,
 			}),
 			title: note.data.title,

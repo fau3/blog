@@ -22,6 +22,7 @@ const {
 <html class="scroll-smooth" lang={siteConfig.lang}>
 	<head>
 		<BaseHead articleDate={articleDate} description={description} ogImage={ogImage} title={title} />
+		<ThemeProvider />
 		<ClientRouter />
 		<slot name="head" />
 		{
@@ -300,7 +301,6 @@ const {
 	<body
 		class="mx-auto flex min-h-screen max-w-5xl flex-col bg-bgColor px-4 pb-8 pt-20 font-body text-lg font-normal leading-relaxed text-textColor antialiased selection:bg-accent/30 selection:text-accent sm:px-12"
 	>
-		<ThemeProvider />
 		<SkipLink />
 
 		<!-- Academia texture overlay (lightweight CSS noise) -->

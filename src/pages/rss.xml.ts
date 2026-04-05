@@ -13,9 +13,9 @@ export const GET = async () => {
 		description: siteConfig.description,
 		site: import.meta.env.SITE,
 		items: sortedPosts.map((post) => ({
-			content: getEntryContentHtml(post.body, post.data.description),
+			content: getEntryContentHtml(post.body ?? "", post.data.description),
 			description: getEntryDescription({
-				body: post.body,
+				body: post.body ?? "",
 				description: post.data.description,
 			}),
 			link: `posts/${post.id}/`,

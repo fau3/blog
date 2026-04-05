@@ -10,6 +10,35 @@
 		scrollbar-gutter: stable;
 	}
 
+	/* ── View-Transition flicker fix ──────────────────────────────
+	   The default cross-fade briefly reveals the bare <html> background
+	   (white/wrong-theme) between the old and new snapshots.
+	   Instead of removing all animations, we keep the old snapshot visible
+	   and just fade in the new snapshot over it. */
+	@keyframes custom-fade-in {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	
+	html:not(.theme-transitioning)::view-transition-old(root) {
+		animation: none;
+		z-index: 1;
+	}
+	html:not(.theme-transitioning)::view-transition-new(root) {
+		animation: custom-fade-in 300ms ease-out both;
+		z-index: 2;
+	}
+
+	/* Theme Toggle — Ripple Reveal */
+	html.theme-transitioning::view-transition-old(root) {
+		animation: none;
+		z-index: 1;
+	}
+	html.theme-transitioning::view-transition-new(root) {
+		animation: none;
+		z-index: 2;
+	}
+
 	/* Academia / Classical — Light theme */
 	:root,
 	:root[data-theme="light"] {
@@ -39,32 +68,34 @@
 		--academia-ornate-bg: #F5F0E8;
 	}
 
-	/* Academia / Classical — Dark theme */
+	/* Academia / Classical — Dark theme
+	   ── Warm-shift: hue 25-40 to mirror light mode ──
+	   Lamp-lit study at midnight — gold leaf glows, crimson wax seals pop. */
 	:root[data-theme="dark"] {
 		color-scheme: dark;
-		/* Ink Blue-Gray */
-		--theme-bg: 220 16% 12%;
-		/* Warm Parchment */
-		--theme-text: 36 20% 85%;
-		/* Polished Brass */
-		--theme-link: 40 47% 59%;
-		--theme-accent: 40 47% 59%;
-		/* Parchment for headings */
-		--theme-accent-2: 36 20% 88%;
-		--theme-quote: 40 47% 59%;
-		/* Slate border */
-		--theme-border: 215 12% 25%;
-		/* Muted slate */
-		--theme-muted: 218 14% 18%;
+		/* Clean Ebony */
+		--theme-bg: 30 10% 10%;
+		/* Crisp Parchment */
+		--theme-text: 38 20% 90%;
+		/* Luminous Lamplight Gold */
+		--theme-link: 42 70% 68%;
+		--theme-accent: 42 70% 68%;
+		/* Pure Cream for headings */
+		--theme-accent-2: 38 30% 95%;
+		--theme-quote: 42 70% 68%;
+		/* Refined Timber border */
+		--theme-border: 30 12% 20%;
+		/* Subtle Walnut surface */
+		--theme-muted: 30 10% 14%;
 
 		/* Extended Academia tokens */
-		--academia-bg-alt: #1A1F28;
-		--academia-muted-fg: #8A94A3;
-		--academia-crimson: #8B2635;
-		--academia-brass: #C9A962;
-		--academia-brass-light: #D4B872;
-		--academia-brass-dark: #B8953F;
-		--academia-ornate-bg: #161A22;
+		--academia-bg-alt: #1F1D1B;
+		--academia-muted-fg: #A39E98;
+		--academia-crimson: #D95366;
+		--academia-brass: #DCA95E;
+		--academia-brass-light: #E8CA7A;
+		--academia-brass-dark: #B98B44;
+		--academia-ornate-bg: #161311;
 	}
 }
 

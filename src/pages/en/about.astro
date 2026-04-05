@@ -23,7 +23,7 @@ function seeded(name: string, n: number) {
 const linksOnDrawing = friends.map((f, i) => {
 	const r = (n: number) => seeded(f.name, n);
 	const idx = i % slots.length;
-	const [baseLeft, baseTop] = slots[idx];
+	const [baseLeft, baseTop] = slots[idx] ?? [0, 0];
 	return {
 		...f,
 		left: baseLeft + (r(1) - 0.5) * 6,

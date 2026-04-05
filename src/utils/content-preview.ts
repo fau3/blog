@@ -12,8 +12,8 @@ export function getEntryDescription({
 	maxLength = 220,
 }: {
 	body: string;
-	description?: string;
-	maxLength?: number;
+	description?: string | undefined;
+	maxLength?: number | undefined;
 }) {
 	const preferredDescription = normalizeDescription(description);
 	const text = hasMeaningfulDescription(preferredDescription)

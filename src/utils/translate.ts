@@ -27,7 +27,7 @@ function getNextApiKey(apiKeyStr: string): string {
     }
     const key = keys[keyIndex % keys.length];
     keyIndex++;
-    return key;
+    return key ?? "";
 }
 
 /**
