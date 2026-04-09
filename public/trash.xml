@@ -3,12 +3,18 @@
 <projects>
 
   <project>
-    <name>pipboy</name>
+    <name>哔哔小子pipboy</name>
     <link>https://pipboy-fftimc.replit.app</link>
     <description>这是我看完辐射2后脑子一热做的...
-    当时拷打了很久codex</description>
+    当时拷打了很久codex。我敢说你玩过辐射肯定会想要一个pipboy,废土的魅力!就像看过ben10,会想要一个Omnitrix</description>
   </project>
 
+  <project>
+    <name>这是我以极乐迪斯科为灵感的个人主页</name>
+    <link>https://newhomepage-chi.vercel.app/</link>
+    <description>我记得也是用ai搓的，好像是gemini2.5pro吧，那时候用打野来的gemini key搭建了一个代理池子好像有几千个key轮询，无限弹药了属于是。用的是linuxdo的佬开发的"gemini balance",是参考了一个个人主页改的，但是我没保存地址</description>
+  </project>
 
-
+“喂，出来！”我把脑袋伸进垃圾桶望着不可名状的污垢喊到。
+如果是在塞尔达传说，这时候肯定会冒出一声“呀哈哈！”
 </projects>
