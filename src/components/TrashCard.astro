@@ -1,0 +1,39 @@
+---
+interface Props {
+  title?: string;
+  images?: string[];
+  link?: string;
+}
+
+const { title, images = [], link } = Astro.props;
+---
+
+<div class="trash-card break-inside-avoid mb-8 relative rounded-lg border border-accent bg-transparent p-6 transition-all duration-300 hover:shadow-xl overflow-hidden group">
+  <!-- 左侧条纹点缀 -->
+  <div class="absolute left-0 top-0 h-full w-1 bg-[repeating-linear-gradient(-45deg,transparent,transparent_4px,rgba(150,150,150,0.1)_4px,rgba(150,150,150,0.1)_8px)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+
+  {/* 图片画廊区 */}
+  {images.length > 0 && (
+    <div class="-mx-6 -mt-6 mb-6 border-b border-white/10 flex flex-col">
+      {images.map((img) => (
+        <img src={img} alt="Gallery item" loading="lazy" class="w-auto max-w-full max-h-[500px] mx-auto object-contain first:rounded-t-lg filter grayscale-[0.3] contrast-105 transition-all duration-500 group-hover:grayscale-0 group-hover:contrast-100" />
+      ))}
+    </div>
+  )}
+
+  <div class="relative z-10 flex flex-col gap-4">
+    {title && (
+      <h2 class="font-display text-xl font-medium tracking-wide text-accent">{title}</h2>
+    )}
+    
+    {/* 核心：保留换行和缩紧 */}
+    <div class="whitespace-pre-wrap font-body text-[0.95rem] leading-relaxed text-textColor/90"><slot /></div>
+    
+    {/* 链接按钮 */}
+    {link && (
+      <a href={link} target="_blank" rel="noopener noreferrer" class="self-start text-sm text-textColor/50 hover:text-accent transition-colors underline decoration-dashed underline-offset-4">
+        [ Source link ]
+      </a>
+    )}
+  </div>
+</div>

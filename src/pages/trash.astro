@@ -1,0 +1,95 @@
+---
+import PageLayout from "@/layouts/Base.astro";
+import TrashCard from "@/components/TrashCard.astro";
+
+const meta = {
+	description: "乐色堆. . .",
+	title: "TRASH",
+};
+---
+
+<PageLayout meta={meta}>
+	<div class="mx-auto max-w-4xl w-full">
+		<header class="mb-12">
+			<div class="mb-8 flex items-center gap-4">
+				<span class="ornate-divider flex-1"></span>
+				<span class="font-display text-sm font-medium uppercase tracking-[0.25em] text-accent engraved">
+					TRASH
+				</span>
+				<span class="ornate-divider flex-1"></span>
+			</div>
+			<p class="text-center font-body text-sm tracking-wide text-textColor/70">
+				对，如你所见这个页面是乐色堆，你可以见到我之前丢的垃圾，如果你不怕弄脏手的话,捏着鼻子翻一翻也许能找到好玩的东西。
+			</p>
+		</header>
+
+		{/* 瀑布流布局，列数随屏幕大小变化 */}
+		<div class="columns-1 md:columns-2 gap-8">
+
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/nyAMgfk.png"]}
+			>
+牙刷、牙膏
+			</TrashCard>
+
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/hTHrgfk.png"]}
+			>
+形状有点不对吧！
+			</TrashCard>
+			<TrashCard
+				title="哔哔小子pipboy"
+				link="https://pipboy-fftimc.replit.app"
+			>
+这是我看完辐射2后脑子一热做的...
+当时拷打了很久codex。我敢说你玩过辐射肯定会想要一个pipboy,废土的魅力!就像看过ben10,会想要一个Omnitrix
+			</TrashCard>
+						<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/tB8Tgfk.png"]}
+			>
+藕，还有一堆大肠
+	</TrashCard>
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/Okpsgfk.png"]}
+			>
+墨水，是鸵鸟牌的无碳墨水
+	</TrashCard>
+
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/k2wsgfk.png"]}
+			>
+冻干咖啡和娃哈哈矿泉水
+	</TrashCard>
+			<TrashCard
+				title="这是我以极乐迪斯科为灵感的个人主页"
+				link="https://newhomepage-chi.vercel.app/"
+			>
+我记得也是用ai搓的，好像是gemini2.5pro吧，那时候用打野来的gemini key搭建了一个代理池子好像有几千个key轮询，无限弹药了属于是。用的是linuxdo的佬开发的"gemini
+      balance",是参考了一个个人主页改的，但是我没保存地址
+			</TrashCard>
+
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/PDCSgfk.png"]}
+			>
+5块钱买的折叠伞，深红色。
+	</TrashCard>
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/Q98Sgfk.png"]}
+			>
+另外一稿垃圾桶
+	</TrashCard>
+
+			<TrashCard
+				images={["https://roim-picx-9nr.pages.dev/rest/3mTSgfk.png"]}
+			>
+另外的另外一稿垃圾桶
+	</TrashCard>
+
+			<TrashCard>
+“喂，出来！”我把脑袋伸进垃圾桶望着不可名状的污垢喊到。
+如果是在塞尔达传说，这时候肯定会冒出一声“呀哈哈！”
+			</TrashCard>
+
+		</div>
+	</div>
+</PageLayout>
