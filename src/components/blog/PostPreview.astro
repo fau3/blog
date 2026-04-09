@@ -25,11 +25,15 @@ const { as: Tag = "div", post, withDesc = false, basePath = "/posts" } = Astro.p
 	</div>
 	{
 		post.data.tags && (
-			<div class="hidden sm:flex items-center gap-2">
+			<div class="hidden sm:flex items-center gap-2 z-10">
 				{post.data.tags.slice(0, 3).map((tag: string) => (
-					<span class="font-display text-xs uppercase tracking-[0.2em] text-mutedFg/60 transition-colors hover:text-accent">
+					<a
+						href={`/tags/${tag}/`}
+						class="font-display text-xs uppercase tracking-[0.2em] text-mutedFg/60 transition-colors hover:text-accent"
+						aria-label={`View all posts with tag ${tag}`}
+					>
 						#{tag}
-					</span>
+					</a>
 				))}
 			</div>
 		)

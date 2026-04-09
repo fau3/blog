@@ -103,11 +103,13 @@
    ACADEMIA CUSTOM STYLES
    ═══════════════════════════════════════════ */
 
-/* --- About page drawing: dark mode blend with theme background --- */
-:root[data-theme="dark"] .about-drawing-wrap {
+/* --- About & Trash page drawings: dark mode blend with theme background --- */
+:root[data-theme="dark"] .about-drawing-wrap,
+:root[data-theme="dark"] .trash-drawing-wrap {
 	background-color: hsl(var(--theme-bg));
 }
-:root[data-theme="dark"] .about-drawing-img {
+:root[data-theme="dark"] .about-drawing-img,
+:root[data-theme="dark"] .trash-drawing-img {
 	mix-blend-mode: multiply;
 	opacity: 0.78;
 }

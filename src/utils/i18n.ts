@@ -25,7 +25,6 @@ export const translations = {
             morePosts: "更多文章...",
             notes: "笔记",
         },
-        // 关于页
         about: {
             title: "关于",
             description: "仙人掌主题",
@@ -35,6 +34,8 @@ export const translations = {
             addFriendLink: "如需添加友链，欢迎在 GitHub 提交",
             or: "或通过",
             contactMe: "联系我。",
+            trashBin: "废纸篓",
+            enter: "点击进入",
         },
         // 文章
         post: {
@@ -72,6 +73,8 @@ export const translations = {
             addFriendLink: "To add a friend link, submit a PR on GitHub",
             or: "or contact me via",
             contactMe: ".",
+            trashBin: "Wastebasket",
+            enter: "Enter",
         },
         post: {
             toc: "Table of Contents",

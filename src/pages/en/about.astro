@@ -45,6 +45,11 @@ const linksOnDrawing = friends.map((f, i) => {
 			<p class="font-body text-lg font-normal leading-relaxed text-textColor">
 				Everything, be it poetry, music, film, or fiction, is connected to imagination. This is a slice of my imagination—observations about life and reflections on the world, all cut into thin pieces by words...
 			</p>
+			<div class="mt-4 flex justify-end">
+				<div class="about-connect inline-flex rounded-md bg-[var(--academia-ornate-bg)]/50 px-3 py-2.5">
+					<SocialList mode="social" />
+				</div>
+			</div>
 		</header>
 
 		<section aria-label="Friend Links" class="mb-8">
@@ -85,17 +90,25 @@ const linksOnDrawing = friends.map((f, i) => {
 			</figure>
 		</section>
 
-		<section aria-label="Connect">
+
+		<section aria-label={t(locale, "about", "trashBin")}>
 			<div class="mb-8 flex items-center gap-4">
 				<span class="ornate-divider flex-1"></span>
 				<span class="font-display text-sm font-medium uppercase tracking-[0.25em] text-accent engraved">
-					{t(locale, "about", "connect")}
+					{t(locale, "about", "trashBin")}
 				</span>
 				<span class="ornate-divider flex-1"></span>
 			</div>
-			<div class="about-connect inline-flex rounded-md bg-[var(--academia-ornate-bg)]/50 px-3 py-2.5">
-				<SocialList mode="social" />
-			</div>
+			<figure class="trash-drawing-figure my-8 text-center">
+				<a href="/trash.xml" class="trash-drawing-wrap inline-block" title={t(locale, "about", "trashBin")}>
+					<img
+						src="/images/trash.png"
+						alt="Trash bin"
+						class="trash-drawing-img"
+						loading="lazy"
+					/>
+				</a>
+			</figure>
 		</section>
 	</article>
 	<style>
@@ -153,6 +166,33 @@ const linksOnDrawing = friends.map((f, i) => {
 		}
 		.about-drawing-link:hover {
 			color: hsl(var(--theme-accent-2));
+		}
+
+		/* 废纸篓图样式 */
+		.trash-drawing-figure {
+			margin-left: auto;
+			margin-right: auto;
+			width: 100%;
+			max-width: min(200px, 100%);
+		}
+		.trash-drawing-wrap {
+			position: relative;
+			display: inline-block;
+			width: 100%;
+			overflow: hidden;
+		}
+		.trash-drawing-img {
+			display: block;
+			width: 100%;
+			height: auto;
+			object-fit: contain;
+			opacity: 0.92;
+			mix-blend-mode: multiply;
+			transition: opacity 0.3s ease;
+			margin: 0 auto;
+		}
+		.trash-drawing-wrap:hover .trash-drawing-img {
+			opacity: 1;
 		}
 	</style>
 </PageLayout>

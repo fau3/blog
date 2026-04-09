@@ -16,24 +16,26 @@ const menuLinks = getMenuLinks(currentLocale);
 	<div
 		class="flex w-full flex-col items-center justify-center gap-y-3 text-center sm:flex-row sm:justify-between"
 	>
-		<div class="font-body text-sm text-mutedFg">
-			&copy; {siteConfig.author}
-			{year}
-			{
-				siteConfig.fediverse.enabled && (
-					<>
-						{" · "}
-						<a
-							class="transition-colors hover:text-accent"
-							href={siteConfig.fediverse.profileUrl}
-							rel="me noreferrer"
-							target="_blank"
-						>
-							{fediverseHandle}
-						</a>
-					</>
-				)
-			}
+		<div class="flex flex-col items-center gap-3 sm:flex-row sm:gap-4">
+			<div class="font-body text-sm text-mutedFg">
+				&copy; {siteConfig.author}
+				{year}
+				{
+					siteConfig.fediverse.enabled && (
+						<>
+							{" · "}
+							<a
+								class="transition-colors hover:text-accent"
+								href={siteConfig.fediverse.profileUrl}
+								rel="me noreferrer"
+								target="_blank"
+								set:html={`<!--email_off-->${fediverseHandle}<!--/email_off-->`}
+							/>
+						</>
+					)
+				}
+			</div>
+
 		</div>
 		<nav
 			aria-label="More on this site"
