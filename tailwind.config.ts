@@ -33,7 +33,7 @@ export default {
 			addComponents({
 				".cactus-link": {
 					"&:hover": {
-						"@apply decoration-accent decoration-2 tracking-wider": {},
+						"@apply decoration-accent decoration-2": {},
 					},
 					"@apply underline underline-offset-4 text-accent transition-all duration-300": {},
 				},
