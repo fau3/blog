@@ -151,6 +151,5 @@ export function getMenuLinks(locale: Locale) {
         { path: `${prefix}/about/`, title: trans.about },
         { path: `${prefix}/posts/`, title: trans.posts },
         { path: `${prefix}/notes/`, title: trans.notes },
-        { path: `${prefix}/link/`, title: trans.links },
     ];
 }
