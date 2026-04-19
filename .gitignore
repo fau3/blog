@@ -40,3 +40,10 @@ Desktop.ini
 .astro
 .vercel/
 .kilocode/
+
+# one-time scripts
+generate_meting.js
+modify.js
+
+# unused assets
+public/88x31.png
